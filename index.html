@@ -12,115 +12,121 @@
       height: 100vh;
       margin: 0;
       color: white;
-      font-famly: sans-serif;
+      font-family: sans-serif;
       flex-direction: column;
     }
     canvas {
       background: #222;
       border: 2px solid #555;
     }
-    </style>
-  </head>
-  <body>
+  </style>
+</head>
+<body>
 
-  <h2>Змейка 🐍</h2>
-  <canvas id="game" width="400" height="400"><</canvas>
-  <p>Управление: стрелки</p>
-  <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
+<h2>Змейка 🐍</h2>
+<canvas id="game" width="400" height="400"></canvas>
+<p>Управление: стрелки</p>
 
-    const grid = 20;
-    let count = 0;
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-    let snake = {
-      x: 160,
-      y: 160,
-      dx: grid,
-      dy: 0,
-      cells: [],
-      maxCells: 4
-    };
-    let apple = {
-      x: 320,
-      y: 320
-    };
-    function getRandomInt(min,max) {
-      return Math.floor(Math.random() * (max - min)) + min;
+const grid = 20;
+let count = 0;
+
+let snake = {
+  x: 160,
+  y: 160,
+  dx: grid,
+  dy: 0,
+  cells: [],
+  maxCells: 4
+};
+
+let apple = {
+  x: 320,
+  y: 320
+};
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function loop() {
+  requestAnimationFrame(loop);
+
+  if (++count < 4) return;
+  count = 0;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  snake.x += snake.dx;
+  snake.y += snake.dy;
+
+  // телепорт через стены
+  if (snake.x < 0) snake.x = canvas.width - grid;
+  else if (snake.x >= canvas.width) snake.x = 0;
+
+  if (snake.y < 0) snake.y = canvas.height - grid;
+  else if (snake.y >= canvas.height) snake.y = 0;
+
+  snake.cells.unshift({x: snake.x, y: snake.y});
+
+  if (snake.cells.length > snake.maxCells) {
+    snake.cells.pop();
+  }
+
+  // яблоко
+  ctx.fillStyle = "red";
+  ctx.fillRect(apple.x, apple.y, grid-1, grid-1);
+
+  // змейка
+  ctx.fillStyle = "lime";
+  snake.cells.forEach(function(cell, index) {
+    ctx.fillRect(cell.x, cell.y, grid-1, grid-1);
+
+    // съели яблоко
+    if (cell.x === apple.x && cell.y === apple.y) {
+      snake.maxCells++;
+      apple.x = getRandomInt(0, 20) * grid;
+      apple.y = getRandomInt(0, 20) * grid;
     }
-    function loop() {
-      requestAnimationFrame(loop);
-      
-      if (++count < 4) return;
-      count = 0;
-      
-      ctx.clearRect(0, 0, canvas.width,canvas.height);
 
-      snake.x += snake.dx;
-      snake.y += snake.dy;
-
-      // телепорт через стены
-      if (snake.x < 0) snake.x = canvas.width - grid;
-      else if (snake.x >= canvas.width) snake.x = 0;
-
-      if (snake.y <0) snake.y = canvas.height - grid;
-      else if (snake.y >= canvas.height) snake.y = 0;
-
-      snake.cells.unshift({x: snake.x, y: snake.y});
-
-      if (snake.cells.length > snake.maxCells) {
-        snake.cells.pop();
-      }
-      //яблоко
-      ctx.fillStyle = "red";
-      ctx.fillRest(apple.x, apple.y, grid-1, grid-1);
-      
-      //змейка
-      ctx.fillStyle = "lime";
-      snake.cells.forEach(function(cell, index) {
-        ctx.fillRect(cell.x, cell.y, grid-1, grid-1);
-
-        //съели яблоко
-        if (cell.x === apple.x && cell.y === apple.y) {
-          snake.maxCells++;
-          apple.x = getRandomInt(0, 20) * grid;
-          apple.y = getRandomInt(0, 20) * grid;
-        }
-
-        //столкновение с собой
-        for (let i = index + 1; i < snake.cells.length; i++) {
-          if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-            snake.x = 160;
-            snake.y = 160;
-            snake.cells = []
-            snake.maxCells = 4;
-            snake.dx grid;
-            snake.dy = 0;
-
-            apple.x = getRandomInt(0, 20) * grid;
-            apple.y = getrandomInt(0, 20) * grid;
-          }
-        }
-      } ) ;  
-    }   
-    document.addEventListener("keydown", function(e)) {
-      if (e.key === "ArrowLeft" && snake.dx === 0) {
-        snake.dx = -grid;
-        snake.dy = 0;
-      } else if (e.key ==="ArrowUp" && snake.dy === 0) {
-        snake.dy = -grid;
-        snake.dx = 0;
-      } else if (e.key === "ArrowRight" && snake.dx === 0) {
+    // столкновение с собой
+    for (let i = index + 1; i < snake.cells.length; i++) {
+      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+        snake.x = 160;
+        snake.y = 160;
+        snake.cells = [];
+        snake.maxCells = 4;
         snake.dx = grid;
         snake.dy = 0;
-      } else if (e.rey ==="ArrowDown" && snake.dy === 0) {
-        snake.dy = grid;
-        snake.dx = 0;
+
+        apple.x = getRandomInt(0, 20) * grid;
+        apple.y = getRandomInt(0, 20) * grid;
       }
-    });
+    }
+  });
+}
 
-    requestAnimationFrame(loop);
-    </script>
+document.addEventListener("keydown", function(e) {
+  if (e.key === "ArrowLeft" && snake.dx === 0) {
+    snake.dx = -grid;
+    snake.dy = 0;
+  } else if (e.key === "ArrowUp" && snake.dy === 0) {
+    snake.dy = -grid;
+    snake.dx = 0;
+  } else if (e.key === "ArrowRight" && snake.dx === 0) {
+    snake.dx = grid;
+    snake.dy = 0;
+  } else if (e.key === "ArrowDown" && snake.dy === 0) {
+    snake.dy = grid;
+    snake.dx = 0;
+  }
+});
 
-  </body>
-  </html>
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
